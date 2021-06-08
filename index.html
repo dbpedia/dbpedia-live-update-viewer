@@ -1,0 +1,64 @@
+<html>
+
+<head>
+  <title>Getting Started: Serving Web Content</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <script src="/live/scripts.js"></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+</head>
+
+<body ng-app="live-demo" style="background-color: #f6f6f6;">
+  <div ng-controller="myController">
+
+    <div>
+    
+      <div class="header" style="display: flex; position: absolute;top: 16px; right: 16px; left: 16px;
+         align-items: center; height: 64px; ">
+        
+        <div style="margin-left: 16px; font-size: 1.25em;">DBpedia Live Updates</div>
+        <div style="flex-grow: 1;"></div>
+        <button ng-click="scrollToBottom()" style="margin-right: 16px;" class="button">Scroll To Bottom</bytton>
+      </div>
+
+      <div style="position: absolute; background-color: white;  
+        top: 80px; bottom: 16px; right: 16px; left: 16px; overflow-y: auto;
+        border: 1px solid #dbdbdb;" id="scrollView" scroll>
+      <div style="display: flex; width: 100%; padding: 8px; border-bottom: 1px solid #dbdbdb;" ng-repeat="entry in entries">
+        <div style="flex-basis: 15%; flex-grow: 0; padding-right: 16px;"><a ng-href='{{entry.subject}}'>{{ entry.subjectLabel }}</a></div>
+        <div style="flex-basis: 10%; flex-grow: 0; padding-right: 16px;"><a ng-href='{{entry.predicate}}'>{{ entry.predicateLabel }}</a></div>
+        <div style="flex-basis: 0; flex-grow: 1;">
+          <span ng-if='entry.objectTo.type == "image"'>
+            <img ng-if="entry.objectFrom" style="opacity: 0.5; max-width: 300px;" ng-src='{{ entry.objectFrom.src }}'>
+            <img style="max-width: 300px;" ng-src='{{ entry.objectTo.src }}'>
+          </span>
+          <span ng-if='entry.objectTo.type == "resource"'>
+            <span ng-if='entry.objectFrom' style="color: #dbdbdb;">
+              <a ng-href='{{entry.objectFrom.href}}'>{{ entry.objectFrom.label }}</a> --> </span>
+            <a ng-href='{{entry.objectTo.href}}'>{{ entry.objectTo.label }}</a>
+          </span>
+          <span ng-if='entry.objectTo.type == "literal"'>
+            <span ng-if='entry.objectFrom' style="color: #a0a0a0;">{{ entry.objectFrom.value }} --> </span>{{
+            entry.objectTo.value }}
+          </span>
+
+        </div>
+      </div>
+
+      </div>
+
+    </div>
+
+
+
+
+  </div>
+
+
+
+</body>
+
+</html>
