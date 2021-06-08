@@ -16,22 +16,29 @@ app.directive('scroll', [function () {
   }
 }]);
 
-app.controller('myController', function ($scope, $interval) {
+app.controller('myController', function ($scope, $sce) {
 
   $scope.entries = [];
 
   $scope.scrollLock = true;
+  $scope.dmp = new diff_match_patch();
+  $scope.dmp.Diff_Timeout = 1;
+  $scope.dmp.Diff_EditCost = 4;
 
-  $scope.predicateRegex =
+  $scope.predicatePrefixes = [
+    'http://dbpedia.org/ontology/',
+    'http://dbpedia.org/property/',
+  ];
 
-    $scope.predicatePrefixes = [
-      'http://dbpedia.org/ontology/',
-      'http://dbpedia.org/property/',
-    ];
+  $scope.diffProperties = [
+    'http://dbpedia.org/ontology/abstract',
+    'http://dbpedia.org/property/desc'
+  ]
 
   $scope.imageRegex = /(jpg|png|svg)$/;
 
   $scope.resourcePrefix = 'http://dbpedia.org/resource/'
+  
   $scope.excludeProperties = [
     'http://dbpedia.org/property/wikiPageUsesTemplate',
     'http://www.w3.org/ns/prov#wasDerivedFrom',
@@ -41,6 +48,13 @@ app.controller('myController', function ($scope, $interval) {
     'http://dbpedia.org/ontology/wikiPageOutDegree',
     'http://dbpedia.org/ontology/wikiPageExternalLink'
   ];
+
+  $scope.getDiff = function (oldValue, newValue) {
+    var d = $scope.dmp.diff_main(oldValue, newValue);
+    $scope.dmp.diff_cleanupSemantic(d);
+
+    return $sce.trustAsHtml($scope.dmp.diff_prettyHtml(d));
+  }
 
   $scope.filter = function (triple) {
 
@@ -110,7 +124,7 @@ app.controller('myController', function ($scope, $interval) {
 
     return {
       type: 'literal',
-      value: obj
+      value: obj,
     };
   }
 
@@ -196,6 +210,19 @@ app.controller('myController', function ($scope, $interval) {
       entry.objectTo = $scope.formatObject(entry.objectTo);
       entry.objectFrom = $scope.formatObject(entry.objectFrom);
 
+      var createDiff = false;
+
+      for (var d in $scope.diffProperties) {
+        if (entry.predicate == $scope.diffProperties[d]) {
+          createDiff = true;
+        }
+      }
+
+      if (createDiff && entry.objectTo.type == 'literal' && entry.objectFrom != undefined
+        && entry.objectFrom.type == 'literal') {
+        entry.objectTo.diff = $scope.getDiff(entry.objectFrom.value, entry.objectTo.value);
+      }
+
       $scope.entries.push(entry);
     }
 
@@ -209,7 +236,7 @@ app.controller('myController', function ($scope, $interval) {
   });
 
 
-  $scope.scrollToBottom = function() {
+  $scope.scrollToBottom = function () {
     $scope.scrollLock = true;
     $scope.appScroll = true;
     var scrollView = document.getElementById("scrollView");
