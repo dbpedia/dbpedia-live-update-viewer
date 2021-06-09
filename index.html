@@ -22,7 +22,8 @@
       <div class="header" style="display: flex; position: absolute;top: 16px; right: 16px; left: 16px;
          align-items: center; height: 64px; ">
 
-        <div style="margin-left: 16px; font-size: 1.25em;">DBpedia Live Data News Demo from EN,DE Wikipedia</div>
+        <div style="margin-left: 16px; font-size: 1.25em;">Data News from Wikipedia</div>
+        <div style="margin-left: 4px; font-size: 0.5em;">DBpedia Live Demo for EN,DE Wikipedia</div>
         <div style="flex-grow: 1;"></div>
         <button ng-click="scrollToBottom()" style="margin-right: 16px;" class="button">Scroll To Bottom</bytton>
       </div>
@@ -34,7 +35,7 @@
           ng-repeat="entry in entries">
           <!-- subject -->
           <div style="flex-basis: 15%; flex-grow: 0; padding-right: 16px;">
-			  <a target="_blank" ng-href='{{entry.subjectlive}}'>{{entry.subjectLabel }}</a>   
+			  <a target="_blank" ng-href='{{entry.subjectwikipedia}}'>{{entry.subjectLabel }}</a>   
 			  <a target="_blank" ng-href='{{entry.subjectlive}}'><img style="height:20px;" src="./dbpedia.ico"/></a>   
 			  <a target="_blank" ng-href='{{entry.subjectwikipedia}}'><img style="height:20px;" src="./wikipedia.ico"/></a>   
 			  
