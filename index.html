@@ -32,10 +32,18 @@
         border: 1px solid #dbdbdb;" id="scrollView" scroll>
         <div style="display: flex; width: 100%; padding: 8px; border-bottom: 1px solid #dbdbdb;"
           ng-repeat="entry in entries">
-          <div style="flex-basis: 15%; flex-grow: 0; padding-right: 16px;"><a ng-href='{{entry.subject}}'>{{
-              entry.subjectLabel }}</a></div>
+          <!-- subject -->
+          <div style="flex-basis: 15%; flex-grow: 0; padding-right: 16px;">
+			  <a target="_blank" ng-href='{{entry.subjectlive}}'>{{entry.subjectLabel }}</a>   
+			  <a target="_blank" ng-href='{{entry.subjectlive}}'><img style="height:20px;" src="./dbpedia.ico"/></a>   
+			  <a target="_blank" ng-href='{{entry.subjectwikipedia}}'><img style="height:20px;" src="./wikipedia.ico"/></a>   
+			  
+          </div>
+          <!-- predicate -->
           <div style="flex-basis: 10%; flex-grow: 0; padding-right: 16px;"><a ng-href='{{entry.predicate}}'>{{
               entry.predicateLabel }}</a></div>
+
+		  <!-- object -->
           <div style="flex-basis: 0; flex-grow: 1;">
             <span ng-if='entry.objectTo.type == "image"'>
               <img ng-if="entry.objectFrom" style="opacity: 0.5; max-width: 300px;" ng-src='{{ entry.objectFrom.src }}'>
