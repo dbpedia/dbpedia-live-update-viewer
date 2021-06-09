@@ -5,8 +5,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-  <script
-    src="./diff_match_patch.js"></script>
+  <script src="./diff_match_patch.js"></script>
   <script src="./scripts.js"></script>
 
 
@@ -25,26 +24,28 @@
         <div style="margin-left: 16px; font-size: 1.25em;">Data News from Wikipedia</div>
         <div style="margin-left: 4px; font-size: 0.75em;">DBpedia Live Demo for EN,DE Wikipedia</div>
         <div style="flex-grow: 1;"></div>
-        <button ng-click="scrollToBottom()" style="margin-right: 16px;" class="button">Scroll To Bottom</button>
+        <input class="form-control" type="text" style="margin-right: 16px; flex-basis: 500px;"  placeholder="Filter properties (URIs separated by comma)" ng-model="propertyFilterInput" ng-change="updatePropertyFilters()">
+        <button ng-click="scrollToBottom()" style="margin-right: 16px;" class="btn btn-primary" type="button">Scroll To Bottom</button>
       </div>
 
       <div style="position: absolute; background-color: white;  
         top: 80px; bottom: 16px; right: 16px; left: 16px; overflow-y: auto;
         border: 1px solid #dbdbdb;" id="scrollView" scroll>
         <div style="display: flex; width: 100%; padding: 8px; border-bottom: 1px solid #dbdbdb;"
-          ng-repeat="entry in entries">
+          ng-repeat="entry in filteredEntries">
           <!-- subject -->
           <div style="flex-basis: 15%; flex-grow: 0; padding-right: 16px;">
-			  <a target="_blank" ng-href='{{entry.subjectwikipedia}}'>{{entry.subjectLabel }}</a>   
-			  <a target="_blank" ng-href='{{entry.subjectlive}}'><img style="height:20px;" src="./dbpedia.ico"/></a>   
-			  <a target="_blank" ng-href='{{entry.subjectwikipedia}}'><img style="height:20px;" src="./wikipedia.ico"/></a>   
-			  
+            <a target="_blank" ng-href='{{entry.subjectwikipedia}}'>{{entry.subjectLabel }}</a>
+            <a target="_blank" ng-href='{{entry.subjectlive}}'><img style="height:20px;" src="./dbpedia.ico" /></a>
+            <a target="_blank" ng-href='{{entry.subjectwikipedia}}'><img style="height:20px;"
+                src="./wikipedia.ico" /></a>
+
           </div>
           <!-- predicate -->
           <div style="flex-basis: 10%; flex-grow: 0; padding-right: 16px;"><a ng-href='{{entry.predicate}}'>{{
               entry.predicateLabel }}</a></div>
 
-		  <!-- object -->
+          <!-- object -->
           <div style="flex-basis: 0; flex-grow: 1;">
             <span ng-if='entry.objectTo.type == "image"'>
               <img ng-if="entry.objectFrom" style="opacity: 0.5; max-width: 300px;" ng-src='{{ entry.objectFrom.src }}'>
@@ -52,14 +53,25 @@
             </span>
             <span ng-if='entry.objectTo.type == "resource"'>
               <span ng-if='entry.objectFrom'><span style="background: #ffe6e6;">
-                <a ng-href='{{entry.objectFrom.href}}'>{{ entry.objectFrom.label }}</a></span> --> </span>
-              <span><a ng-href='{{entry.objectTo.href}}'>{{ entry.objectTo.label }}</a></span> 
+                  <a ng-href='{{entry.objectFrom.hrefwikipedia}}'>{{ entry.objectFrom.label }}</a></span>
+                  <a target="_blank" ng-href='{{entry.objectFrom.hreflive}}'><img style="height:20px;"
+                      src="./dbpedia.ico" /></a>
+                  <a target="_blank" ng-href='{{entry.objectFrom.hrefwikipedia}}'><img style="height:20px;"
+                      src="./wikipedia.ico" /></a>
+                --> </span>
+              <span><a ng-href='{{entry.objectTo.hrefwikipedia}}'>{{ entry.objectTo.label }}</a></span>
+              <a target="_blank" ng-href='{{entry.objectTo.hreflive}}'><img style="height:20px;"
+                  src="./dbpedia.ico" /></a>
+              <a target="_blank" ng-href='{{entry.objectTo.hrefwikipedia}}'><img style="height:20px;"
+                  src="./wikipedia.ico" /></a>
+
             </span>
             <div ng-if='entry.objectTo.type == "literal"'>
               <div ng-if="entry.objectTo.diff" ng-bind-html="entry.objectTo.diff"></div>
               <span ng-if="!entry.objectTo.diff">
-                <span ng-if='entry.objectFrom'><span style="background: #ffe6e6;">{{ entry.objectFrom.value }}</span> --> </span>
-                <span >{{ entry.objectTo.value }}</span>
+                <span ng-if='entry.objectFrom'><span style="background: #ffe6e6;">{{ entry.objectFrom.value }}</span>
+                  --> </span>
+                <span>{{ entry.objectTo.value }}</span>
               </span>
             </div>
           </div>

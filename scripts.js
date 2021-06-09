@@ -19,6 +19,7 @@ app.directive('scroll', [function () {
 app.controller('myController', function ($scope, $sce) {
 
   $scope.entries = [];
+  $scope.filteredEntries = [];
 
   $scope.scrollLock = true;
   $scope.dmp = new diff_match_patch();
@@ -37,8 +38,11 @@ app.controller('myController', function ($scope, $sce) {
 
   $scope.imageRegex = /(jpg|png|svg)$/;
 
-  $scope.resourcePrefix = 'http://dbpedia.org/resource/'
-  
+  $scope.resourcePrefixes = [
+    'http://dbpedia.org/resource/',
+    'http://de.dbpedia.org/resource/'
+  ];
+
   $scope.excludeProperties = [
     'http://dbpedia.org/property/wikiPageUsesTemplate',
     'http://www.w3.org/ns/prov#wasDerivedFrom',
@@ -54,6 +58,15 @@ app.controller('myController', function ($scope, $sce) {
     $scope.dmp.diff_cleanupSemantic(d);
 
     return $sce.trustAsHtml($scope.dmp.diff_prettyHtml(d));
+  }
+
+  $scope.updatePropertyFilters = function () {
+    $scope.filterProperties = $scope.propertyFilterInput.split(',');
+
+    $scope.filteredEntries = $scope.entries.filter(function (e) {
+      return $scope.isAllowedByPropertyFilter(e.predicate);
+    });
+
   }
 
   $scope.filter = function (triple) {
@@ -76,9 +89,44 @@ app.controller('myController', function ($scope, $sce) {
       return false;
     }
 
+    //if (!isAllowedByPropertyFilter(triple.predicate)) {
+    //  return false;
+    //}
+
     return true;
   }
 
+  $scope.isAllowedByPropertyFilter = function (predicate) {
+
+    if ($scope.filterProperties == undefined) {
+      return true;
+    }
+
+    if ($scope.filterProperties.length == 0) {
+      return true;
+    }
+
+    if ($scope.filterProperties.length == 1 && $scope.filterProperties[0] == "") {
+      return true;
+    }
+
+    var isAllowedByFilter = false;
+
+    for (var p in $scope.filterProperties) {
+      var prop = $scope.filterProperties[p];
+
+      if (prop == predicate) {
+        isAllowedByFilter = true;
+        break;
+      }
+    }
+
+    if (!isAllowedByFilter) {
+      return false;
+    }
+
+    return true;
+  }
 
   $scope.uriToName = function (uri) {
     if (uri == null) {
@@ -97,12 +145,22 @@ app.controller('myController', function ($scope, $sce) {
       return undefined;
     }
 
-    if (obj.startsWith($scope.resourcePrefix)) {
-      return {
-        type: 'resource',
-        href: obj,
-        label: $scope.uriToName(obj)
-      };
+    for (var p in $scope.resourcePrefixes) {
+      var resourcePrefix = $scope.resourcePrefixes[p];
+
+      if (obj.startsWith(resourcePrefix)) {
+        return {
+          type: 'resource',
+          href: obj,
+          hreflive: obj.
+            replace("http://dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/en/").
+            replace("http://de.dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/de/"),
+          hrefwikipedia: obj.
+            replace("http://dbpedia.org/resource/", "http://en.wikipedia.org/wiki/").
+            replace("http://de.dbpedia.org/resource/", "http://de.wikipedia.org/wiki/"),
+          label: $scope.uriToName(obj)
+        };
+      }
     }
 
     try {
@@ -130,11 +188,8 @@ app.controller('myController', function ($scope, $sce) {
 
   $scope.escapeHtml = function (unsafe) {
     return unsafe
-      .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/>/g, "&gt;");
   }
 
   var evtSource = new EventSource("http://api.live.dbpedia.org/demo/diff-stream");
@@ -186,11 +241,11 @@ app.controller('myController', function ($scope, $sce) {
       var entry = {
         subject: newTriple.subject,
         subjectlive: newTriple.subject.
-			replace("http://dbpedia.org/resource/","http://api.live.dbpedia.org/resource/en/").
-			replace("http://de.dbpedia.org/resource/","http://api.live.dbpedia.org/resource/de/"),
-		subjectwikipedia: newTriple.subject.
-			replace("http://dbpedia.org/resource/","http://en.wikipedia.org/wiki/").
-			replace("http://de.dbpedia.org/resource/","http://de.wikipedia.org/wiki/"),	
+          replace("http://dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/en/").
+          replace("http://de.dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/de/"),
+        subjectwikipedia: newTriple.subject.
+          replace("http://dbpedia.org/resource/", "http://en.wikipedia.org/wiki/").
+          replace("http://de.dbpedia.org/resource/", "http://de.wikipedia.org/wiki/"),
         predicate: newTriple.predicate,
         objectTo: newTriple.object
       };
@@ -230,7 +285,13 @@ app.controller('myController', function ($scope, $sce) {
       }
 
       $scope.entries.push(entry);
+
+      if ($scope.isAllowedByPropertyFilter(entry.predicate)) {
+        $scope.filteredEntries.push(entry);
+      }
     }
+
+
 
     $scope.appScroll = true;
     $scope.$apply();
