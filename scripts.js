@@ -249,7 +249,7 @@ app.controller('myController', function ($scope, $sce) {
           replace("http://dbpedia.org/resource/", "http://en.wikipedia.org/wiki/").
           replace("http://de.dbpedia.org/resource/", "http://de.wikipedia.org/wiki/"),
         
-        global: newTriple.subject.replace("^","https://global.dbpedia.org/?s="),
+        global: "https://global.dbpedia.org/?s=" + newTriple.subject,
         
         predicate: newTriple.predicate,
         objectTo: newTriple.object
