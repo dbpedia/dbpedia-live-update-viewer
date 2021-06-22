@@ -240,12 +240,17 @@ app.controller('myController', function ($scope, $sce) {
 
       var entry = {
         subject: newTriple.subject,
+        
         subjectlive: newTriple.subject.
           replace("http://dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/en/").
           replace("http://de.dbpedia.org/resource/", "http://api.live.dbpedia.org/resource/de/"),
+        
         subjectwikipedia: newTriple.subject.
           replace("http://dbpedia.org/resource/", "http://en.wikipedia.org/wiki/").
           replace("http://de.dbpedia.org/resource/", "http://de.wikipedia.org/wiki/"),
+        
+        global: newTriple.subject.replace("^","https://global.dbpedia.org/?s="),
+        
         predicate: newTriple.predicate,
         objectTo: newTriple.object
       };
